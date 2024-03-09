@@ -39,11 +39,12 @@ IO.on("connection", (socket) => {
     });
   });
 
+
   socket.on("answerCall", (data) => {
     let callerId = data.callerId.toString();
     let sdpAnswer = data.sdpAnswer;
 
-    console.log(socket.userId, " is ANSWERING CALL FOR ", callerId);
+    console.log(socket.user, " is ANSWERING CALL FOR ", callerId);
 
     socket.to(callerId).emit("callAnswered", {
       callee: socket.user,
@@ -55,13 +56,24 @@ IO.on("connection", (socket) => {
     let callerId = data.callerId.toString();
     let reasonSlug = data.reasonSlug;
 
-    console.log(socket.user, " is ANSWERING CALL FOR ", callerId);
+    console.log(socket.user, " is DECLINING CALL FROM ", callerId, " WITH REASON: ", reasonSlug);
 
     socket.to(callerId).emit("callDeclined", {
       callee: socket.user,
       reason: reasonSlug,
     });
   });
+
+  socket.on("requestCallBack", (data) => {
+    let callerId = data.callerId.toString();
+
+    console.log(socket.user, " is SENDING RECALL REQUEST TO ", callerId);
+
+    socket.to(callerId).emit("resendCall", {
+      toUserId:socket.user,
+    });
+  });
+
 
   socket.on("IceCandidate", (data) => {
     let calleeId = data.calleeId.toString();
